@@ -1,8 +1,10 @@
-<div class="sidebar">
-  <h3>Components</h3>
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <span class="sidebar-eyebrow">Builder</span>
+    <h3>Components</h3>
+    <p>Drag a field onto the canvas to start composing your form.</p>
+  </div>
 
-  <!-- Sidebar also needs cdkDropList so CDK knows these are draggable items -->
-  <!-- cdkDropListSortingDisabled prevents reordering within the sidebar -->
   <div
     cdkDropList
     id="sidebar-list"
@@ -16,11 +18,11 @@
       cdkDrag
       [cdkDragData]="comp.type"
     >
-      {{ comp.label }}
+      <span class="comp-icon">+</span>
+      <span>{{ comp.label }}</span>
 
-      <!-- Ghost preview while dragging -->
       <div *cdkDragPreview class="drag-preview">{{ comp.label }}</div>
       <div *cdkDragPlaceholder class="drag-placeholder"></div>
     </div>
   </div>
-</div>
+</aside>

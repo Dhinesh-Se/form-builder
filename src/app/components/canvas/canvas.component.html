@@ -1,10 +1,13 @@
 <div class="canvas-wrapper">
   <div class="toolbar">
-    <span class="toolbar-title">
-      Form Canvas
-      <span class="badge">{{ formService.formElements.length }} elements</span>
-    </span>
-    <button class="btn btn-danger" (click)="clearAll()">Clear All</button>
+    <div>
+      <span class="toolbar-eyebrow">Workspace</span>
+      <h2 class="toolbar-title">
+        Form Canvas
+        <span class="badge">{{ formService.formElements.length }} elements</span>
+      </h2>
+    </div>
+    <button class="btn btn-danger" type="button" (click)="clearAll()">Clear All</button>
   </div>
 
   <div
@@ -15,7 +18,9 @@
     (cdkDropListDropped)="onDrop($event)"
   >
     <div class="empty-hint" *ngIf="formService.formElements.length === 0">
-      ⬇ Drag and drop components here
+      <div class="empty-icon">⇣</div>
+      <strong>Start building your form</strong>
+      <span>Drag components from the left panel and customize them here.</span>
     </div>
 
     <div
@@ -26,12 +31,16 @@
     >
       <div class="element-header">
         <span class="drag-handle" cdkDragHandle title="Drag to reorder">☰</span>
-        <span class="element-type">{{ el.type }}</span>
-        <div class="element-actions">
+        <div>
+          <span class="element-type">{{ el.type }}</span>
+          <h3>{{ el.label }}</h3>
+        </div>
+        <div class="element-actions" aria-label="Element actions">
           <button
             type="button"
             class="icon-btn"
             title="Move up"
+            aria-label="Move element up"
             [disabled]="i === 0"
             (click)="moveElement(el.id, -1)"
           >
@@ -41,6 +50,7 @@
             type="button"
             class="icon-btn"
             title="Move down"
+            aria-label="Move element down"
             [disabled]="i === formService.formElements.length - 1"
             (click)="moveElement(el.id, 1)"
           >
@@ -50,6 +60,7 @@
             type="button"
             class="icon-btn"
             title="Duplicate"
+            aria-label="Duplicate element"
             (click)="duplicateElement(el.id)"
           >
             ⧉
@@ -58,6 +69,7 @@
             type="button"
             class="delete-btn"
             title="Delete"
+            aria-label="Delete element"
             (click)="deleteElement(el.id)"
           >
             ✕
@@ -65,115 +77,123 @@
         </div>
       </div>
 
-      <div class="field-settings">
-        <label>
-          Label
-          <input
-            type="text"
-            [ngModel]="el.label"
-            (ngModelChange)="updateLabel(el.id, $event)"
-            [ngModelOptions]="{ standalone: true }"
-          />
-        </label>
+      <div class="element-body">
+        <div class="field-settings">
+          <label class="control-label">
+            <span>Label</span>
+            <input
+              type="text"
+              [ngModel]="el.label"
+              (ngModelChange)="updateLabel(el.id, $event)"
+              [ngModelOptions]="{ standalone: true }"
+            />
+          </label>
 
-        <label *ngIf="hasPlaceholder(el)">
-          Placeholder
-          <input
-            type="text"
-            [ngModel]="el.placeholder"
-            (ngModelChange)="updatePlaceholder(el.id, $event)"
-            [ngModelOptions]="{ standalone: true }"
-          />
-        </label>
+          <label class="control-label" *ngIf="hasPlaceholder(el)">
+            <span>Placeholder</span>
+            <input
+              type="text"
+              [ngModel]="el.placeholder"
+              (ngModelChange)="updatePlaceholder(el.id, $event)"
+              [ngModelOptions]="{ standalone: true }"
+            />
+          </label>
 
-        <label class="required-toggle" *ngIf="el.type !== 'button'">
-          <input
-            type="checkbox"
-            [ngModel]="el.required"
-            (ngModelChange)="updateRequired(el.id, $event)"
-            [ngModelOptions]="{ standalone: true }"
-          />
-          Required
-        </label>
+          <label class="required-toggle" *ngIf="el.type !== 'button'">
+            <input
+              type="checkbox"
+              [ngModel]="el.required"
+              (ngModelChange)="updateRequired(el.id, $event)"
+              [ngModelOptions]="{ standalone: true }"
+            />
+            <span>Required field</span>
+          </label>
 
-        <label class="options-editor" *ngIf="hasOptions(el)">
-          Options (one per line)
-          <textarea
-            rows="3"
-            [ngModel]="getOptionsText(el)"
-            (ngModelChange)="updateOptions(el.id, $event)"
-            [ngModelOptions]="{ standalone: true }"
-          ></textarea>
-        </label>
-      </div>
+          <label class="options-editor" *ngIf="hasOptions(el)">
+            <span>Options</span>
+            <small>Write one option per line. Preview updates instantly.</small>
+            <textarea
+              rows="4"
+              [ngModel]="getOptionsText(el)"
+              (ngModelChange)="updateOptions(el.id, $event)"
+              [ngModelOptions]="{ standalone: true }"
+            ></textarea>
+          </label>
+        </div>
 
-      <div class="preview-panel">
-        <span class="preview-title">Preview</span>
-        <ng-container [ngSwitch]="el.type">
-          <ng-container *ngSwitchCase="'text'">
-            <label>{{ el.label }}</label>
-            <input type="text" [placeholder]="el.placeholder" disabled />
-          </ng-container>
-
-          <ng-container *ngSwitchCase="'email'">
-            <label>{{ el.label }}</label>
-            <input type="email" [placeholder]="el.placeholder" disabled />
-          </ng-container>
-
-          <ng-container *ngSwitchCase="'number'">
-            <label>{{ el.label }}</label>
-            <input type="number" [placeholder]="el.placeholder" disabled />
-          </ng-container>
-
-          <ng-container *ngSwitchCase="'password'">
-            <label>{{ el.label }}</label>
-            <input type="password" [placeholder]="el.placeholder" disabled />
-          </ng-container>
-
-          <ng-container *ngSwitchCase="'date'">
-            <label>{{ el.label }}</label>
-            <input type="date" disabled />
-          </ng-container>
-
-          <ng-container *ngSwitchCase="'textarea'">
-            <label>{{ el.label }}</label>
-            <textarea disabled [placeholder]="el.placeholder"></textarea>
-          </ng-container>
-
-          <ng-container *ngSwitchCase="'checkbox'">
-            <div class="inline-field">
-              <input type="checkbox" disabled />
+        <div class="preview-panel">
+          <div class="preview-heading">
+            <span class="preview-title">Live preview</span>
+            <span class="required-pill" *ngIf="el.required">Required</span>
+          </div>
+          <ng-container [ngSwitch]="el.type">
+            <ng-container *ngSwitchCase="'text'">
               <label>{{ el.label }}</label>
-            </div>
-          </ng-container>
+              <input type="text" [placeholder]="el.placeholder" disabled />
+            </ng-container>
 
-          <ng-container *ngSwitchCase="'radio'">
-            <label>{{ el.label }}</label>
-            <div class="inline-field" *ngFor="let option of el.options">
-              <input type="radio" disabled />
-              <label>{{ option.label }}</label>
-            </div>
-          </ng-container>
+            <ng-container *ngSwitchCase="'email'">
+              <label>{{ el.label }}</label>
+              <input type="email" [placeholder]="el.placeholder" disabled />
+            </ng-container>
 
-          <ng-container *ngSwitchCase="'select'">
-            <label>{{ el.label }}</label>
-            <select disabled>
-              <option value="">Select an option</option>
-              <option *ngFor="let option of el.options" [value]="option.value">
-                {{ option.label }}
-              </option>
-            </select>
-          </ng-container>
+            <ng-container *ngSwitchCase="'number'">
+              <label>{{ el.label }}</label>
+              <input type="number" [placeholder]="el.placeholder" disabled />
+            </ng-container>
 
-          <ng-container *ngSwitchCase="'button'">
-            <button class="preview-btn" disabled>{{ el.label }}</button>
-          </ng-container>
+            <ng-container *ngSwitchCase="'password'">
+              <label>{{ el.label }}</label>
+              <input type="password" [placeholder]="el.placeholder" disabled />
+            </ng-container>
 
-          <ng-container *ngSwitchDefault>
-            <label>{{ el.label }}</label>
-            <input [type]="el.type" [placeholder]="el.placeholder" disabled />
+            <ng-container *ngSwitchCase="'date'">
+              <label>{{ el.label }}</label>
+              <input type="date" disabled />
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'textarea'">
+              <label>{{ el.label }}</label>
+              <textarea disabled [placeholder]="el.placeholder"></textarea>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'checkbox'">
+              <label class="choice-card single-choice">
+                <input type="checkbox" disabled />
+                <span>{{ el.label }}</span>
+              </label>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'radio'">
+              <label>{{ el.label }}</label>
+              <div class="option-grid">
+                <label class="choice-card" *ngFor="let option of el.options">
+                  <input type="radio" disabled />
+                  <span>{{ option.label }}</span>
+                </label>
+              </div>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'select'">
+              <label>{{ el.label }}</label>
+              <select disabled>
+                <option value="">Select an option</option>
+                <option *ngFor="let option of el.options" [value]="option.value">
+                  {{ option.label }}
+                </option>
+              </select>
+            </ng-container>
+
+            <ng-container *ngSwitchCase="'button'">
+              <button class="preview-btn" disabled>{{ el.label }}</button>
+            </ng-container>
+
+            <ng-container *ngSwitchDefault>
+              <label>{{ el.label }}</label>
+              <input [type]="el.type" [placeholder]="el.placeholder" disabled />
+            </ng-container>
           </ng-container>
-        </ng-container>
+        </div>
       </div>
     </div>
   </div>
