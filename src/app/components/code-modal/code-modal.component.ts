@@ -89,6 +89,20 @@ export class CodeModalComponent {
         }
         lines.push(`    </select>`);
         lines.push(`  </div>`);
+      } else if (el.type === 'select') {
+        lines.push(`  <div class="form-group">`);
+        lines.push(`    <label for="${name}">${el.label}</label>`);
+        lines.push(
+          `    <select id="${name}" name="${name}" [(ngModel)]="form.${name}"${req}>`,
+        );
+        lines.push(`      <option value="">Select an option</option>`);
+        for (const option of el.options ?? []) {
+          lines.push(
+            `      <option value="${option.value}">${option.label}</option>`,
+          );
+        }
+        lines.push(`    </select>`);
+        lines.push(`  </div>`);
       } else if (el.type === 'button') {
         lines.push(`  <button type="submit">${label}</button>`);
       }
