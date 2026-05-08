@@ -34,11 +34,10 @@ export class CodeModalComponent {
     lines.push('<form (ngSubmit)="onSubmit()" #myForm="ngForm">');
 
     for (const el of elements) {
-      // Convert "Full Name" → "full_name" for HTML attributes
-      const name = el.label.toLowerCase().replace(/\s+/g, '_');
+      const name = this.toControlName(el.label);
       const req = el.required ? ' required' : '';
 
-      if (el.type === 'text' || el.type === 'email') {
+      if (this.isInputElement(el.type)) {
         lines.push(`  <div class="form-group">`);
         lines.push(`    <label for="${name}">${el.label}</label>`);
         lines.push(
@@ -66,6 +65,20 @@ export class CodeModalComponent {
         );
         lines.push(`    <label for="${name}">${el.label}</label>`);
         lines.push(`  </div>`);
+      } else if (el.type === 'select') {
+        lines.push(`  <div class="form-group">`);
+        lines.push(`    <label for="${name}">${el.label}</label>`);
+        lines.push(
+          `    <select id="${name}" name="${name}" [(ngModel)]="form.${name}"${req}>`,
+        );
+        lines.push(`      <option value="">Select an option</option>`);
+        for (const option of el.options ?? []) {
+          lines.push(
+            `      <option value="${option.value}">${option.label}</option>`,
+          );
+        }
+        lines.push(`    </select>`);
+        lines.push(`  </div>`);
       } else if (el.type === 'button') {
         lines.push(`  <button type="submit">${el.label}</button>`);
       }
@@ -73,6 +86,14 @@ export class CodeModalComponent {
 
     lines.push('</form>');
     return lines.join('\n');
+  }
+
+  private isInputElement(type: string): boolean {
+    return ['text', 'email', 'number', 'password', 'date'].includes(type);
+  }
+
+  private toControlName(label: string): string {
+    return label.toLowerCase().trim().replace(/[^a-z0-9]+/g, '_');
   }
 
   copyCode(): void {

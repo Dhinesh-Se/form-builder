@@ -1,24 +1,41 @@
 import { Injectable } from '@angular/core';
-import { FormElement } from '../models/form-element.model';
+import {
+  FormElement,
+  FormElementDefinition,
+} from '../models/form-element.model';
 
 @Injectable({ providedIn: 'root' })
 export class FormBuilderService {
+  readonly componentDefinitions: FormElementDefinition[] = [
+    { type: 'text', label: 'TextBox', placeholder: 'Enter text' },
+    { type: 'textarea', label: 'TextArea', placeholder: 'Enter text...' },
+    { type: 'email', label: 'Email', placeholder: 'Enter email' },
+    { type: 'number', label: 'Number', placeholder: 'Enter number' },
+    { type: 'password', label: 'Password', placeholder: 'Enter password' },
+    { type: 'date', label: 'Date' },
+    { type: 'checkbox', label: 'Checkbox' },
+    { type: 'radio', label: 'Radio Button' },
+    {
+      type: 'select',
+      label: 'Dropdown',
+      options: [
+        { label: 'Option 1', value: 'option1' },
+        { label: 'Option 2', value: 'option2' },
+      ],
+    },
+    { type: 'button', label: 'Button' },
+  ];
+
   formElements: FormElement[] = [];
 
   addElement(type: string): void {
-    const labels: Record<string, string> = {
-      text: 'TextBox',
-      textarea: 'TextArea',
-      email: 'Email',
-      checkbox: 'Checkbox',
-      radio: 'Radio Button',
-      button: 'Button',
-    };
+    const definition = this.getComponentDefinition(type);
+
     this.formElements.push({
+      ...definition,
       id: Date.now(),
-      type,
-      label: labels[type] || type,
       required: false,
+      options: definition.options?.map((option) => ({ ...option })),
     });
   }
 
@@ -28,5 +45,14 @@ export class FormBuilderService {
 
   clearAll(): void {
     this.formElements = [];
+  }
+
+  private getComponentDefinition(type: string): FormElementDefinition {
+    return (
+      this.componentDefinitions.find((component) => component.type === type) ?? {
+        type,
+        label: type,
+      }
+    );
   }
 }

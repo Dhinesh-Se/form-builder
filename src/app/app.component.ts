@@ -16,4 +16,6 @@ import { CodeModalComponent } from './components/code-modal/code-modal.component
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
 })
-export class AppComponent {}
+export class AppComponent {
+  title = 'form-builder';
+}

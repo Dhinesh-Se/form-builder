@@ -70,6 +70,10 @@
 
 .form-element input[type="text"],
 .form-element input[type="email"],
+.form-element input[type="number"],
+.form-element input[type="password"],
+.form-element input[type="date"],
+.form-element select,
 .form-element textarea {
   width: 100%;
   padding: 6px 10px;
