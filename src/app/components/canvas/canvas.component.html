@@ -1,0 +1,53 @@
+<div class="canvas-wrapper">
+  <div class="toolbar">
+    <span class="toolbar-title">
+      Form Canvas
+      <span class="badge">{{ formService.formElements.length }} elements</span>
+    </span>
+    <button class="btn btn-danger" (click)="clearAll()">Clear All</button>
+  </div>
+
+  <div
+    class="canvas"
+    cdkDropList
+    id="canvas-list"
+    [cdkDropListData]="formService.formElements"
+    (cdkDropListDropped)="onDrop($event)"
+  >
+    <div class="empty-hint" *ngIf="formService.formElements.length === 0">
+      ⬇ Drag and drop components here
+    </div>
+
+    <div *ngFor="let el of formService.formElements" class="form-element">
+      <ng-container *ngIf="el.type === 'text' || el.type === 'email'">
+        <label>{{ el.label }}</label>
+        <input [type]="el.type" [placeholder]="'Enter ' + el.label" disabled />
+      </ng-container>
+
+      <ng-container *ngIf="el.type === 'textarea'">
+        <label>{{ el.label }}</label>
+        <textarea disabled placeholder="Enter text..."></textarea>
+      </ng-container>
+
+      <ng-container *ngIf="el.type === 'checkbox'">
+        <div class="inline-field">
+          <input type="checkbox" disabled />
+          <label>{{ el.label }}</label>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="el.type === 'radio'">
+        <div class="inline-field">
+          <input type="radio" disabled />
+          <label>{{ el.label }}</label>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="el.type === 'button'">
+        <button class="preview-btn" disabled>{{ el.label }}</button>
+      </ng-container>
+
+      <button class="delete-btn" (click)="deleteElement(el.id)">✕</button>
+    </div>
+  </div>
+</div>

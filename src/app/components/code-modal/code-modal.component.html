@@ -1,0 +1,17 @@
+<!-- Generate button shown on the page -->
+<button class="btn btn-primary" (click)="generate()">⚡ Generate Code</button>
+
+<!-- Modal (only shown when showModal is true) -->
+<div class="modal-backdrop" *ngIf="showModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Generated Angular Template</h3>
+      <button class="close-btn" (click)="closeModal()">✕</button>
+    </div>
+    <textarea class="code-area" readonly>{{ generatedCode }}</textarea>
+    <div class="modal-footer">
+      <button class="btn btn-copy" (click)="copyCode()">{{ copyLabel }}</button>
+      <button class="btn" (click)="closeModal()">Close</button>
+    </div>
+  </div>
+</div>

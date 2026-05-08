@@ -1,0 +1,26 @@
+<div class="sidebar">
+  <h3>Components</h3>
+
+  <!-- Sidebar also needs cdkDropList so CDK knows these are draggable items -->
+  <!-- cdkDropListSortingDisabled prevents reordering within the sidebar -->
+  <div
+    cdkDropList
+    id="sidebar-list"
+    [cdkDropListData]="components"
+    cdkDropListSortingDisabled
+    class="sidebar-list"
+  >
+    <div
+      *ngFor="let comp of components"
+      class="comp-item"
+      cdkDrag
+      [cdkDragData]="comp.type"
+    >
+      {{ comp.label }}
+
+      <!-- Ghost preview while dragging -->
+      <div *cdkDragPreview class="drag-preview">{{ comp.label }}</div>
+      <div *cdkDragPlaceholder class="drag-placeholder"></div>
+    </div>
+  </div>
+</div>
