@@ -6,12 +6,12 @@
   <div
     cdkDropList
     id="sidebar-list"
-    [cdkDropListData]="components"
+    [cdkDropListData]="formService.componentDefinitions"
     cdkDropListSortingDisabled
     class="sidebar-list"
   >
     <div
-      *ngFor="let comp of components"
+      *ngFor="let comp of formService.componentDefinitions"
       class="comp-item"
       cdkDrag
       [cdkDragData]="comp.type"

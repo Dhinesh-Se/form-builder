@@ -19,32 +19,69 @@
     </div>
 
     <div *ngFor="let el of formService.formElements" class="form-element">
-      <ng-container *ngIf="el.type === 'text' || el.type === 'email'">
-        <label>{{ el.label }}</label>
-        <input [type]="el.type" [placeholder]="'Enter ' + el.label" disabled />
-      </ng-container>
-
-      <ng-container *ngIf="el.type === 'textarea'">
-        <label>{{ el.label }}</label>
-        <textarea disabled placeholder="Enter text..."></textarea>
-      </ng-container>
-
-      <ng-container *ngIf="el.type === 'checkbox'">
-        <div class="inline-field">
-          <input type="checkbox" disabled />
+      <ng-container [ngSwitch]="el.type">
+        <ng-container *ngSwitchCase="'text'">
           <label>{{ el.label }}</label>
-        </div>
-      </ng-container>
+          <input type="text" [placeholder]="el.placeholder" disabled />
+        </ng-container>
 
-      <ng-container *ngIf="el.type === 'radio'">
-        <div class="inline-field">
-          <input type="radio" disabled />
+        <ng-container *ngSwitchCase="'email'">
           <label>{{ el.label }}</label>
-        </div>
-      </ng-container>
+          <input type="email" [placeholder]="el.placeholder" disabled />
+        </ng-container>
 
-      <ng-container *ngIf="el.type === 'button'">
-        <button class="preview-btn" disabled>{{ el.label }}</button>
+        <ng-container *ngSwitchCase="'number'">
+          <label>{{ el.label }}</label>
+          <input type="number" [placeholder]="el.placeholder" disabled />
+        </ng-container>
+
+        <ng-container *ngSwitchCase="'password'">
+          <label>{{ el.label }}</label>
+          <input type="password" [placeholder]="el.placeholder" disabled />
+        </ng-container>
+
+        <ng-container *ngSwitchCase="'date'">
+          <label>{{ el.label }}</label>
+          <input type="date" disabled />
+        </ng-container>
+
+        <ng-container *ngSwitchCase="'textarea'">
+          <label>{{ el.label }}</label>
+          <textarea disabled [placeholder]="el.placeholder"></textarea>
+        </ng-container>
+
+        <ng-container *ngSwitchCase="'checkbox'">
+          <div class="inline-field">
+            <input type="checkbox" disabled />
+            <label>{{ el.label }}</label>
+          </div>
+        </ng-container>
+
+        <ng-container *ngSwitchCase="'radio'">
+          <div class="inline-field">
+            <input type="radio" disabled />
+            <label>{{ el.label }}</label>
+          </div>
+        </ng-container>
+
+        <ng-container *ngSwitchCase="'select'">
+          <label>{{ el.label }}</label>
+          <select disabled>
+            <option value="">Select an option</option>
+            <option *ngFor="let option of el.options" [value]="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+        </ng-container>
+
+        <ng-container *ngSwitchCase="'button'">
+          <button class="preview-btn" disabled>{{ el.label }}</button>
+        </ng-container>
+
+        <ng-container *ngSwitchDefault>
+          <label>{{ el.label }}</label>
+          <input [type]="el.type" [placeholder]="el.placeholder" disabled />
+        </ng-container>
       </ng-container>
 
       <button class="delete-btn" (click)="deleteElement(el.id)">✕</button>
