@@ -7,20 +7,27 @@
     <div class="modal-header">
       <div class="modal-header-left">
         <span class="modal-badge">Export</span>
-        <h3>Generated Angular Code</h3>
+        <h3>Generated Code</h3>
       </div>
-      <button class="modal-close" type="button" (click)="closeModal()">✕</button>
+      <div class="modal-header-right">
+        <select class="framework-select" [ngModel]="framework" (ngModelChange)="setFramework($event)">
+          <option value="angular">Angular</option>
+          <option value="react">React</option>
+          <option value="vanilla">Vanilla HTML/JS</option>
+        </select>
+        <button class="modal-close" type="button" (click)="closeModal()">✕</button>
+      </div>
     </div>
 
     <div class="modal-tabs">
       <button class="modal-tab" [class.active]="activeTab === 'html'" (click)="activeTab = 'html'">
-        📄 Template
+        📄 {{ framework === 'react' ? 'Component (JSX)' : (framework === 'vanilla' ? 'HTML' : 'Template') }}
       </button>
       <button class="modal-tab" [class.active]="activeTab === 'css'" (click)="activeTab = 'css'">
         🎨 Styles
       </button>
-      <button class="modal-tab" [class.active]="activeTab === 'ts'" (click)="activeTab = 'ts'">
-        ⚙ Component
+      <button *ngIf="framework !== 'react'" class="modal-tab" [class.active]="activeTab === 'ts'" (click)="activeTab = 'ts'">
+        ⚙ {{ framework === 'vanilla' ? 'JavaScript' : 'Component (TS)' }}
       </button>
     </div>
 
@@ -29,8 +36,9 @@
     </div>
 
     <div class="modal-footer">
-      <span class="modal-hint">Copy the code and paste it into your Angular project</span>
+      <span class="modal-hint">Copy the code and paste it into your {{ framework === 'vanilla' ? 'Vanilla' : (framework === 'react' ? 'React' : 'Angular') }} project</span>
       <div class="modal-actions">
+        <button class="btn-copy" type="button" (click)="downloadFolder()">📦 Download Folder</button>
         <button class="btn-copy" type="button" (click)="copyCode()">{{ copyLabel }}</button>
         <button class="btn-close-m" type="button" (click)="closeModal()">Close</button>
       </div>

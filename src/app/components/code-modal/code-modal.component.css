@@ -56,6 +56,29 @@
 
 .modal-header-left { display: flex; align-items: center; gap: 12px; }
 
+.modal-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.framework-select {
+  background: #252d3f;
+  color: #f1f5f9;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 13px;
+  outline: none;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.framework-select:focus {
+  border-color: #6366f1;
+}
+
 .modal-badge {
   background: #4f46e5;
   color: white;

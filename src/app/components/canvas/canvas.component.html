@@ -6,22 +6,27 @@
         <input
           class="form-title-input"
           [ngModel]="formService.formTitle()"
-          (ngModelChange)="formService.formTitle.set($event)"
+          (ngModelChange)="formService.updateTitle($event)"
           placeholder="Form Title"
         />
         <input
           class="form-desc-input"
           [ngModel]="formService.formDescription()"
-          (ngModelChange)="formService.formDescription.set($event)"
+          (ngModelChange)="formService.updateDescription($event)"
           placeholder="Form description..."
         />
       </div>
     </div>
     <div class="toolbar-right">
       <span class="element-count">{{ formService.formElements.length }} field{{ formService.formElements.length !== 1 ? 's' : '' }}</span>
-      <button class="btn btn-ghost" type="button" (click)="clearAll()" [disabled]="formService.formElements.length === 0">
-        🗑 Clear
-      </button>
+      <button class="btn btn-ghost" type="button" (click)="exportForm()">Export JSON</button>
+  <label class="btn btn-ghost" style="cursor:pointer;">
+    Import JSON
+    <input type="file" accept=".json" (change)="importForm($event)" style="display:none" />
+  </label>
+  <button class="btn btn-ghost" type="button" (click)="clearAll()" [disabled]="formService.formElements.length === 0">
+    🗑 Clear
+  </button>
     </div>
   </div>
 

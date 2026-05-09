@@ -61,7 +61,30 @@ export class CanvasComponent {
     if (this.expandedId() === id) this.expandedId.set(null);
     this.formService.removeElement(id);
   }
-  clearAll() {
+  exportForm(): void {
+    const data = this.formService.exportSchema();
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'form-schema.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  importForm(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files?.length) return;
+    const file = input.files[0];
+    const reader = new FileReader();
+    reader.onload = () => {
+      const text = reader.result as string;
+      this.formService.importSchema(text);
+    };
+    reader.readAsText(file);
+  }
+
+  clearAll(): void {
     this.expandedId.set(null);
     this.formService.clearAll();
   }
