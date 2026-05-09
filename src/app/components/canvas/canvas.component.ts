@@ -66,6 +66,10 @@ export class CanvasComponent {
     this.formService.clearAll();
   }
 
+  trackByElement(index: number, el: FormElement): number {
+    return el.id;
+  }
+
   getShadowStyle(level: string): string {
     const map: Record<string, string> = {
       none: 'none',

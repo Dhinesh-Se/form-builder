@@ -46,7 +46,7 @@
 
       <!-- FORM ELEMENTS -->
       <div
-        *ngFor="let el of formService.formElements; let i = index"
+        *ngFor="let el of formService.formElements; let i = index; trackBy: trackByElement"
         class="form-element-card"
         [class.expanded]="expandedId() === el.id"
         cdkDrag
