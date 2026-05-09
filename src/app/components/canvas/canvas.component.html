@@ -1,198 +1,245 @@
 <div class="canvas-wrapper">
+  <!-- TOOLBAR -->
   <div class="toolbar">
-    <div>
-      <span class="toolbar-eyebrow">Workspace</span>
-      <h2 class="toolbar-title">
-        Form Canvas
-        <span class="badge">{{ formService.formElements.length }} elements</span>
-      </h2>
+    <div class="toolbar-left">
+      <div class="form-meta">
+        <input
+          class="form-title-input"
+          [ngModel]="formService.formTitle()"
+          (ngModelChange)="formService.formTitle.set($event)"
+          placeholder="Form Title"
+        />
+        <input
+          class="form-desc-input"
+          [ngModel]="formService.formDescription()"
+          (ngModelChange)="formService.formDescription.set($event)"
+          placeholder="Form description..."
+        />
+      </div>
     </div>
-    <button class="btn btn-danger" type="button" (click)="clearAll()">Clear All</button>
+    <div class="toolbar-right">
+      <span class="element-count">{{ formService.formElements.length }} field{{ formService.formElements.length !== 1 ? 's' : '' }}</span>
+      <button class="btn btn-ghost" type="button" (click)="clearAll()" [disabled]="formService.formElements.length === 0">
+        🗑 Clear
+      </button>
+    </div>
   </div>
 
-  <div
-    class="canvas"
-    cdkDropList
-    id="canvas-list"
-    [cdkDropListData]="formService.formElements"
-    (cdkDropListDropped)="onDrop($event)"
-  >
-    <div class="empty-hint" *ngIf="formService.formElements.length === 0">
-      <div class="empty-icon">⇣</div>
-      <strong>Start building your form</strong>
-      <span>Drag components from the left panel and customize them here.</span>
-    </div>
-
+  <!-- CANVAS -->
+  <div class="canvas-area">
     <div
-      *ngFor="let el of formService.formElements; let i = index"
-      class="form-element"
-      cdkDrag
-      [cdkDragData]="el"
+      class="canvas-drop"
+      cdkDropList
+      id="canvas-list"
+      [cdkDropListData]="formService.formElements"
+      (cdkDropListDropped)="onDrop($event)"
     >
-      <div class="element-header">
-        <span class="drag-handle" cdkDragHandle title="Drag to reorder">☰</span>
-        <div>
-          <span class="element-type">{{ el.type }}</span>
-          <h3>{{ el.label }}</h3>
-        </div>
-        <div class="element-actions" aria-label="Element actions">
-          <button
-            type="button"
-            class="icon-btn"
-            title="Move up"
-            aria-label="Move element up"
-            [disabled]="i === 0"
-            (click)="moveElement(el.id, -1)"
-          >
-            ↑
-          </button>
-          <button
-            type="button"
-            class="icon-btn"
-            title="Move down"
-            aria-label="Move element down"
-            [disabled]="i === formService.formElements.length - 1"
-            (click)="moveElement(el.id, 1)"
-          >
-            ↓
-          </button>
-          <button
-            type="button"
-            class="icon-btn"
-            title="Duplicate"
-            aria-label="Duplicate element"
-            (click)="duplicateElement(el.id)"
-          >
-            ⧉
-          </button>
-          <button
-            type="button"
-            class="delete-btn"
-            title="Delete"
-            aria-label="Delete element"
-            (click)="deleteElement(el.id)"
-          >
-            ✕
-          </button>
+      <!-- EMPTY STATE -->
+      <div class="empty-state" *ngIf="formService.formElements.length === 0">
+        <div class="empty-icon">⬡</div>
+        <h3>Your canvas is empty</h3>
+        <p>Drag fields from the left panel to start building your form</p>
+        <div class="empty-tips">
+          <span>💡 Try dragging "Text Input" or "Email" to begin</span>
         </div>
       </div>
 
-      <div class="element-body">
-        <div class="field-settings">
-          <label class="control-label">
-            <span>Label</span>
-            <input
-              type="text"
-              [ngModel]="el.label"
-              (ngModelChange)="updateLabel(el.id, $event)"
-              [ngModelOptions]="{ standalone: true }"
-            />
-          </label>
-
-          <label class="control-label" *ngIf="hasPlaceholder(el)">
-            <span>Placeholder</span>
-            <input
-              type="text"
-              [ngModel]="el.placeholder"
-              (ngModelChange)="updatePlaceholder(el.id, $event)"
-              [ngModelOptions]="{ standalone: true }"
-            />
-          </label>
-
-          <label class="required-toggle" *ngIf="el.type !== 'button'">
-            <input
-              type="checkbox"
-              [ngModel]="el.required"
-              (ngModelChange)="updateRequired(el.id, $event)"
-              [ngModelOptions]="{ standalone: true }"
-            />
-            <span>Required field</span>
-          </label>
-
-          <label class="options-editor" *ngIf="hasOptions(el)">
-            <span>Options</span>
-            <small>Write one option per line. Preview updates instantly.</small>
-            <textarea
-              rows="4"
-              [ngModel]="getOptionsText(el)"
-              (ngModelChange)="updateOptions(el.id, $event)"
-              [ngModelOptions]="{ standalone: true }"
-            ></textarea>
-          </label>
+      <!-- FORM ELEMENTS -->
+      <div
+        *ngFor="let el of formService.formElements; let i = index"
+        class="form-element-card"
+        [class.expanded]="expandedId() === el.id"
+        cdkDrag
+        [cdkDragData]="el"
+      >
+        <!-- DRAG HANDLE STRIP -->
+        <div class="drag-strip" cdkDragHandle title="Drag to reorder">
+          <span class="drag-dots">⠿</span>
         </div>
 
-        <div class="preview-panel">
-          <div class="preview-heading">
-            <span class="preview-title">Live preview</span>
-            <span class="required-pill" *ngIf="el.required">Required</span>
+        <!-- CARD HEADER -->
+        <div class="card-header" (click)="toggleExpand(el.id)">
+          <div class="card-header-left">
+            <span class="element-icon">{{ el.icon }}</span>
+            <div class="card-meta">
+              <span class="element-label-display">{{ el.label }}</span>
+              <span class="element-type-badge">{{ el.type }}</span>
+            </div>
+            <span class="required-indicator" *ngIf="el.required" title="Required">✱</span>
           </div>
-          <ng-container [ngSwitch]="el.type">
-            <ng-container *ngSwitchCase="'text'">
-              <label>{{ el.label }}</label>
-              <input type="text" [placeholder]="el.placeholder" disabled />
-            </ng-container>
+          <div class="card-actions">
+            <button class="icon-btn" title="Move up" [disabled]="i === 0" (click)="$event.stopPropagation(); moveElement(el.id, -1)">↑</button>
+            <button class="icon-btn" title="Move down" [disabled]="i === formService.formElements.length - 1" (click)="$event.stopPropagation(); moveElement(el.id, 1)">↓</button>
+            <button class="icon-btn" title="Duplicate" (click)="$event.stopPropagation(); duplicateElement(el.id)">⧉</button>
+            <button class="icon-btn delete" title="Delete" (click)="$event.stopPropagation(); deleteElement(el.id)">✕</button>
+            <span class="expand-chevron" [class.open]="expandedId() === el.id">›</span>
+          </div>
+        </div>
 
-            <ng-container *ngSwitchCase="'email'">
-              <label>{{ el.label }}</label>
-              <input type="email" [placeholder]="el.placeholder" disabled />
-            </ng-container>
+        <!-- EXPANDED PANEL -->
+        <div class="card-body" *ngIf="expandedId() === el.id">
+          <div class="panel-grid">
+            <!-- SETTINGS -->
+            <div class="settings-panel">
+              <div class="panel-title">Field Settings</div>
 
-            <ng-container *ngSwitchCase="'number'">
-              <label>{{ el.label }}</label>
-              <input type="number" [placeholder]="el.placeholder" disabled />
-            </ng-container>
+              <div class="field-group" *ngIf="!isLayoutType(el)">
+                <label>Label</label>
+                <input type="text" [ngModel]="el.label" (ngModelChange)="updateLabel(el.id, $event)" placeholder="Field label" />
+              </div>
 
-            <ng-container *ngSwitchCase="'password'">
-              <label>{{ el.label }}</label>
-              <input type="password" [placeholder]="el.placeholder" disabled />
-            </ng-container>
+              <div class="field-group" *ngIf="hasPlaceholder(el)">
+                <label>Placeholder</label>
+                <input type="text" [ngModel]="el.placeholder" (ngModelChange)="updatePlaceholder(el.id, $event)" placeholder="Placeholder text" />
+              </div>
 
-            <ng-container *ngSwitchCase="'date'">
-              <label>{{ el.label }}</label>
-              <input type="date" disabled />
-            </ng-container>
+              <div class="field-group" *ngIf="!isLayoutType(el)">
+                <label>Help Text</label>
+                <input type="text" [ngModel]="el.helpText" (ngModelChange)="updateHelpText(el.id, $event)" placeholder="Optional hint below the field" />
+              </div>
 
-            <ng-container *ngSwitchCase="'textarea'">
-              <label>{{ el.label }}</label>
-              <textarea disabled [placeholder]="el.placeholder"></textarea>
-            </ng-container>
+              <div class="field-group" *ngIf="!isLayoutType(el)">
+                <label>Width</label>
+                <div class="width-toggle">
+                  <button [class.active]="el.width === 'full'" (click)="updateWidth(el.id, 'full')">Full</button>
+                  <button [class.active]="el.width === 'half'" (click)="updateWidth(el.id, 'half')">Half</button>
+                  <button [class.active]="el.width === 'third'" (click)="updateWidth(el.id, 'third')">Third</button>
+                </div>
+              </div>
 
-            <ng-container *ngSwitchCase="'checkbox'">
-              <label class="choice-card single-choice">
-                <input type="checkbox" disabled />
-                <span>{{ el.label }}</span>
-              </label>
-            </ng-container>
+              <div class="options-group" *ngIf="hasOptions(el)">
+                <label>Options <small>(one per line)</small></label>
+                <textarea
+                  rows="5"
+                  [ngModel]="getOptionsText(el)"
+                  (ngModelChange)="updateOptions(el.id, $event)"
+                  placeholder="Option 1&#10;Option 2&#10;Option 3"
+                ></textarea>
+              </div>
 
-            <ng-container *ngSwitchCase="'radio'">
-              <label>{{ el.label }}</label>
-              <div class="option-grid">
-                <label class="choice-card" *ngFor="let option of el.options">
-                  <input type="radio" disabled />
-                  <span>{{ option.label }}</span>
+              <div class="toggle-row" *ngIf="el.type !== 'button' && !isLayoutType(el)">
+                <label class="toggle-label">
+                  <input type="checkbox" [ngModel]="el.required" (ngModelChange)="updateRequired(el.id, $event)" />
+                  <span class="toggle-slider"></span>
+                  Required field
                 </label>
               </div>
-            </ng-container>
+            </div>
 
-            <ng-container *ngSwitchCase="'select'">
-              <label>{{ el.label }}</label>
-              <select disabled>
-                <option value="">Select an option</option>
-                <option *ngFor="let option of el.options" [value]="option.value">
-                  {{ option.label }}
-                </option>
-              </select>
-            </ng-container>
+            <!-- PREVIEW -->
+            <div class="preview-panel" [style.background]="theme.backgroundColor" [style.fontFamily]="theme.fontFamily">
+              <div class="panel-title">Live Preview</div>
+              <div class="preview-form-field" [style.fontSize]="theme.fontSize">
 
-            <ng-container *ngSwitchCase="'button'">
-              <button class="preview-btn" disabled>{{ el.label }}</button>
-            </ng-container>
+                <ng-container [ngSwitch]="el.type">
 
-            <ng-container *ngSwitchDefault>
-              <label>{{ el.label }}</label>
-              <input [type]="el.type" [placeholder]="el.placeholder" disabled />
-            </ng-container>
-          </ng-container>
+                  <ng-container *ngSwitchCase="'heading'">
+                    <h2 class="preview-heading" [style.color]="theme.textColor">{{ el.label }}</h2>
+                  </ng-container>
+
+                  <ng-container *ngSwitchCase="'divider'">
+                    <hr class="preview-divider" [style.borderColor]="theme.borderColor" />
+                  </ng-container>
+
+                  <ng-container *ngSwitchCase="'checkbox'">
+                    <label class="preview-check-label" [style.color]="theme.labelColor">
+                      <input type="checkbox" disabled class="preview-checkbox" />
+                      <span>{{ el.label }}<span class="req-star" *ngIf="el.required" [style.color]="theme.primaryColor"> *</span></span>
+                    </label>
+                    <p class="preview-help" *ngIf="el.helpText" [style.color]="theme.labelColor">{{ el.helpText }}</p>
+                  </ng-container>
+
+                  <ng-container *ngSwitchCase="'radio'">
+                    <label class="preview-label" [style.color]="theme.labelColor">
+                      {{ el.label }}<span class="req-star" *ngIf="el.required" [style.color]="theme.primaryColor"> *</span>
+                    </label>
+                    <div class="preview-radio-group">
+                      <label *ngFor="let option of el.options" class="preview-radio-item" [style.color]="theme.textColor">
+                        <input type="radio" disabled />
+                        {{ option.label }}
+                      </label>
+                    </div>
+                    <p class="preview-help" *ngIf="el.helpText" [style.color]="theme.labelColor">{{ el.helpText }}</p>
+                  </ng-container>
+
+                  <ng-container *ngSwitchCase="'select'">
+                    <label class="preview-label" [style.color]="theme.labelColor">
+                      {{ el.label }}<span class="req-star" *ngIf="el.required" [style.color]="theme.primaryColor"> *</span>
+                    </label>
+                    <select
+                      disabled
+                      class="preview-input"
+                      [style.borderColor]="theme.borderColor"
+                      [style.borderRadius]="theme.borderRadius"
+                      [style.background]="theme.inputBg"
+                      [style.color]="theme.textColor"
+                    >
+                      <option>Select an option</option>
+                      <option *ngFor="let option of el.options">{{ option.label }}</option>
+                    </select>
+                    <p class="preview-help" *ngIf="el.helpText" [style.color]="theme.labelColor">{{ el.helpText }}</p>
+                  </ng-container>
+
+                  <ng-container *ngSwitchCase="'textarea'">
+                    <label class="preview-label" [style.color]="theme.labelColor">
+                      {{ el.label }}<span class="req-star" *ngIf="el.required" [style.color]="theme.primaryColor"> *</span>
+                    </label>
+                    <textarea
+                      disabled
+                      class="preview-input"
+                      rows="3"
+                      [placeholder]="el.placeholder || ''"
+                      [style.borderColor]="theme.borderColor"
+                      [style.borderRadius]="theme.borderRadius"
+                      [style.background]="theme.inputBg"
+                      [style.color]="theme.textColor"
+                    ></textarea>
+                    <p class="preview-help" *ngIf="el.helpText" [style.color]="theme.labelColor">{{ el.helpText }}</p>
+                  </ng-container>
+
+                  <ng-container *ngSwitchCase="'button'">
+                    <button
+                      disabled
+                      class="preview-btn"
+                      [style.background]="theme.primaryColor"
+                      [style.color]="theme.buttonTextColor"
+                      [style.borderRadius]="theme.borderRadius"
+                    >{{ el.label }}</button>
+                  </ng-container>
+
+                  <ng-container *ngSwitchCase="'range'">
+                    <label class="preview-label" [style.color]="theme.labelColor">{{ el.label }}</label>
+                    <input type="range" disabled class="preview-range" [style.accentColor]="theme.primaryColor" />
+                    <p class="preview-help" *ngIf="el.helpText" [style.color]="theme.labelColor">{{ el.helpText }}</p>
+                  </ng-container>
+
+                  <ng-container *ngSwitchCase="'color'">
+                    <label class="preview-label" [style.color]="theme.labelColor">{{ el.label }}</label>
+                    <input type="color" disabled class="preview-color-input" />
+                    <p class="preview-help" *ngIf="el.helpText" [style.color]="theme.labelColor">{{ el.helpText }}</p>
+                  </ng-container>
+
+                  <ng-container *ngSwitchDefault>
+                    <label class="preview-label" [style.color]="theme.labelColor">
+                      {{ el.label }}<span class="req-star" *ngIf="el.required" [style.color]="theme.primaryColor"> *</span>
+                    </label>
+                    <input
+                      [type]="el.type"
+                      disabled
+                      class="preview-input"
+                      [placeholder]="el.placeholder || ''"
+                      [style.borderColor]="theme.borderColor"
+                      [style.borderRadius]="theme.borderRadius"
+                      [style.background]="theme.inputBg"
+                      [style.color]="theme.textColor"
+                    />
+                    <p class="preview-help" *ngIf="el.helpText" [style.color]="theme.labelColor">{{ el.helpText }}</p>
+                  </ng-container>
+
+                </ng-container>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -1,0 +1,161 @@
+<div class="preview-backdrop" (click)="close()">
+  <div class="preview-modal" (click)="$event.stopPropagation()">
+    <div class="preview-modal-header">
+      <div class="preview-header-info">
+        <span class="preview-badge">Preview</span>
+        <span class="preview-badge-sub">Live Form</span>
+      </div>
+      <button class="preview-close" (click)="close()">✕ Close</button>
+    </div>
+
+    <div class="preview-body" [style.background]="theme.backgroundColor">
+      <div
+        class="preview-form-container"
+        [style.background]="theme.surfaceColor"
+        [style.fontFamily]="theme.fontFamily"
+        [style.fontSize]="theme.fontSize"
+        [style.color]="theme.textColor"
+        [style.boxShadow]="getShadowStyle(theme.shadowLevel)"
+        [style.borderRadius]="theme.borderRadius"
+      >
+        <!-- FORM HEADER -->
+        <div class="pf-header" [style.borderColor]="theme.borderColor">
+          <h1 class="pf-title" [style.color]="theme.textColor">{{ formService.formTitle() }}</h1>
+          <p class="pf-desc" *ngIf="formService.formDescription()" [style.color]="theme.labelColor">
+            {{ formService.formDescription() }}
+          </p>
+        </div>
+
+        <!-- FORM BODY -->
+        <div class="pf-fields" [style.gap]="theme.spacing">
+
+          <div *ngIf="formService.formElements.length === 0" class="pf-empty">
+            <p>No fields added yet. Go back to the builder and drag some fields onto the canvas.</p>
+          </div>
+
+          <ng-container *ngFor="let el of formService.formElements">
+
+            <!-- HEADING -->
+            <div *ngIf="el.type === 'heading'" class="pf-heading-wrap">
+              <h2 class="pf-field-heading" [style.color]="theme.textColor">{{ el.label }}</h2>
+            </div>
+
+            <!-- DIVIDER -->
+            <div *ngIf="el.type === 'divider'" class="pf-divider-wrap">
+              <hr class="pf-hr" [style.borderColor]="theme.borderColor" />
+            </div>
+
+            <!-- CHECKBOX -->
+            <div *ngIf="el.type === 'checkbox'" class="pf-field" [class.pf-half]="el.width === 'half'" [class.pf-third]="el.width === 'third'">
+              <label class="pf-check-label" [style.color]="theme.textColor">
+                <input type="checkbox" class="pf-checkbox" [style.accentColor]="theme.primaryColor" />
+                <span>{{ el.label }}<span class="pf-required" *ngIf="el.required" [style.color]="theme.primaryColor"> *</span></span>
+              </label>
+              <p class="pf-help" *ngIf="el.helpText" [style.color]="theme.labelColor">{{ el.helpText }}</p>
+            </div>
+
+            <!-- RADIO -->
+            <div *ngIf="el.type === 'radio'" class="pf-field" [class.pf-half]="el.width === 'half'" [class.pf-third]="el.width === 'third'">
+              <label class="pf-label" [style.color]="theme.labelColor">
+                {{ el.label }}<span class="pf-required" *ngIf="el.required" [style.color]="theme.primaryColor"> *</span>
+              </label>
+              <div class="pf-radio-group">
+                <label *ngFor="let opt of el.options" class="pf-radio-item" [style.color]="theme.textColor">
+                  <input type="radio" [name]="'radio_' + el.id" [style.accentColor]="theme.primaryColor" />
+                  {{ opt.label }}
+                </label>
+              </div>
+              <p class="pf-help" *ngIf="el.helpText" [style.color]="theme.labelColor">{{ el.helpText }}</p>
+            </div>
+
+            <!-- SELECT -->
+            <div *ngIf="el.type === 'select'" class="pf-field" [class.pf-half]="el.width === 'half'" [class.pf-third]="el.width === 'third'">
+              <label class="pf-label" [style.color]="theme.labelColor">
+                {{ el.label }}<span class="pf-required" *ngIf="el.required" [style.color]="theme.primaryColor"> *</span>
+              </label>
+              <select
+                class="pf-input"
+                [style.borderColor]="theme.borderColor"
+                [style.borderRadius]="theme.borderRadius"
+                [style.background]="theme.inputBg"
+                [style.color]="theme.textColor"
+                [style.fontSize]="theme.fontSize"
+              >
+                <option value="">Select an option</option>
+                <option *ngFor="let opt of el.options" [value]="opt.value">{{ opt.label }}</option>
+              </select>
+              <p class="pf-help" *ngIf="el.helpText" [style.color]="theme.labelColor">{{ el.helpText }}</p>
+            </div>
+
+            <!-- TEXTAREA -->
+            <div *ngIf="el.type === 'textarea'" class="pf-field pf-full">
+              <label class="pf-label" [style.color]="theme.labelColor">
+                {{ el.label }}<span class="pf-required" *ngIf="el.required" [style.color]="theme.primaryColor"> *</span>
+              </label>
+              <textarea
+                class="pf-input"
+                rows="4"
+                [placeholder]="el.placeholder || ''"
+                [style.borderColor]="theme.borderColor"
+                [style.borderRadius]="theme.borderRadius"
+                [style.background]="theme.inputBg"
+                [style.color]="theme.textColor"
+                [style.fontSize]="theme.fontSize"
+              ></textarea>
+              <p class="pf-help" *ngIf="el.helpText" [style.color]="theme.labelColor">{{ el.helpText }}</p>
+            </div>
+
+            <!-- BUTTON -->
+            <div *ngIf="el.type === 'button'" class="pf-field pf-full pf-btn-wrap">
+              <button
+                class="pf-btn"
+                [style.background]="theme.primaryColor"
+                [style.color]="theme.buttonTextColor"
+                [style.borderRadius]="theme.borderRadius"
+                [style.fontSize]="theme.fontSize"
+              >{{ el.label }}</button>
+            </div>
+
+            <!-- RANGE -->
+            <div *ngIf="el.type === 'range'" class="pf-field" [class.pf-half]="el.width === 'half'" [class.pf-third]="el.width === 'third'">
+              <label class="pf-label" [style.color]="theme.labelColor">{{ el.label }}</label>
+              <input type="range" class="pf-range" [style.accentColor]="theme.primaryColor" />
+              <p class="pf-help" *ngIf="el.helpText" [style.color]="theme.labelColor">{{ el.helpText }}</p>
+            </div>
+
+            <!-- COLOR -->
+            <div *ngIf="el.type === 'color'" class="pf-field" [class.pf-half]="el.width === 'half'" [class.pf-third]="el.width === 'third'">
+              <label class="pf-label" [style.color]="theme.labelColor">{{ el.label }}</label>
+              <input type="color" class="pf-color" />
+              <p class="pf-help" *ngIf="el.helpText" [style.color]="theme.labelColor">{{ el.helpText }}</p>
+            </div>
+
+            <!-- DEFAULT INPUT TYPES -->
+            <div
+              *ngIf="!['heading','divider','checkbox','radio','select','textarea','button','range','color'].includes(el.type)"
+              class="pf-field"
+              [class.pf-half]="el.width === 'half'"
+              [class.pf-third]="el.width === 'third'"
+            >
+              <label class="pf-label" [style.color]="theme.labelColor">
+                {{ el.label }}<span class="pf-required" *ngIf="el.required" [style.color]="theme.primaryColor"> *</span>
+              </label>
+              <input
+                [type]="el.type"
+                class="pf-input"
+                [placeholder]="el.placeholder || ''"
+                [style.borderColor]="theme.borderColor"
+                [style.borderRadius]="theme.borderRadius"
+                [style.background]="theme.inputBg"
+                [style.color]="theme.textColor"
+                [style.fontSize]="theme.fontSize"
+              />
+              <p class="pf-help" *ngIf="el.helpText" [style.color]="theme.labelColor">{{ el.helpText }}</p>
+            </div>
+
+          </ng-container>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

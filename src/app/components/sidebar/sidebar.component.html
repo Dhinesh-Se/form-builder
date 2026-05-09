@@ -1,28 +1,177 @@
 <aside class="sidebar">
-  <div class="sidebar-header">
-    <span class="sidebar-eyebrow">Builder</span>
-    <h3>Components</h3>
-    <p>Drag a field onto the canvas to start composing your form.</p>
+  <div class="sidebar-brand">
+    <div class="brand-icon">◈</div>
+    <div>
+      <div class="brand-name">FormCraft</div>
+      <div class="brand-sub">Visual Form Builder</div>
+    </div>
   </div>
 
-  <div
-    cdkDropList
-    id="sidebar-list"
-    [cdkDropListData]="formService.componentDefinitions"
-    cdkDropListSortingDisabled
-    class="sidebar-list"
-  >
-    <div
-      *ngFor="let comp of formService.componentDefinitions"
-      class="comp-item"
-      cdkDrag
-      [cdkDragData]="comp.type"
-    >
-      <span class="comp-icon">+</span>
-      <span>{{ comp.label }}</span>
+  <div class="tab-bar">
+    <button class="tab-btn" [class.active]="activeTab() === 'fields'" (click)="activeTab.set('fields')">
+      <span>⊞</span> Fields
+    </button>
+    <button class="tab-btn" [class.active]="activeTab() === 'theme'" (click)="activeTab.set('theme')">
+      <span>🎨</span> Theme
+    </button>
+  </div>
 
-      <div *cdkDragPreview class="drag-preview">{{ comp.label }}</div>
-      <div *cdkDragPlaceholder class="drag-placeholder"></div>
+  <!-- FIELDS TAB -->
+  <div class="tab-content" *ngIf="activeTab() === 'fields'">
+    <div class="search-wrap">
+      <span class="search-icon">⌕</span>
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Search fields..."
+        [ngModel]="searchQuery()"
+        (ngModelChange)="searchQuery.set($event)"
+      />
+    </div>
+
+    <div
+      cdkDropList
+      id="sidebar-list"
+      [cdkDropListData]="formService.componentDefinitions"
+      cdkDropListSortingDisabled
+      class="fields-scroll"
+    >
+      <div *ngFor="let category of filteredCategories" class="field-category">
+        <div class="category-label">{{ category }}</div>
+        <div class="category-fields">
+          <div
+            *ngFor="let comp of getFilteredByCategory(category)"
+            class="field-chip"
+            cdkDrag
+            [cdkDragData]="comp.type"
+          >
+            <span class="field-chip-icon">{{ comp.icon }}</span>
+            <span class="field-chip-label">{{ comp.label }}</span>
+            <span class="field-chip-drag">⠿</span>
+            <div *cdkDragPreview class="drag-preview">
+              <span>{{ comp.icon }}</span> {{ comp.label }}
+            </div>
+            <div *cdkDragPlaceholder class="drag-placeholder"></div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="filteredCategories.length === 0" class="empty-search">
+        No fields match "{{ searchQuery() }}"
+      </div>
+    </div>
+  </div>
+
+  <!-- THEME TAB -->
+  <div class="tab-content theme-tab" *ngIf="activeTab() === 'theme'">
+    <div class="theme-scroll">
+      <div class="theme-section">
+        <div class="theme-section-title">Presets</div>
+        <div class="preset-grid">
+          <button
+            *ngFor="let p of presets"
+            class="preset-chip"
+            [style.background]="p.theme.primaryColor"
+            (click)="applyPreset(p.theme)"
+            [title]="p.name"
+          >{{ p.name }}</button>
+        </div>
+      </div>
+
+      <div class="theme-section">
+        <div class="theme-section-title">Colors</div>
+        <div class="color-row">
+          <label class="color-label">Primary</label>
+          <input type="color" class="color-picker" [value]="theme.primaryColor" (input)="updateThemeColor('primaryColor', $any($event.target).value)" />
+          <span class="color-hex">{{ theme.primaryColor }}</span>
+        </div>
+        <div class="color-row">
+          <label class="color-label">Background</label>
+          <input type="color" class="color-picker" [value]="theme.backgroundColor" (input)="updateThemeColor('backgroundColor', $any($event.target).value)" />
+          <span class="color-hex">{{ theme.backgroundColor }}</span>
+        </div>
+        <div class="color-row">
+          <label class="color-label">Surface</label>
+          <input type="color" class="color-picker" [value]="theme.surfaceColor" (input)="updateThemeColor('surfaceColor', $any($event.target).value)" />
+          <span class="color-hex">{{ theme.surfaceColor }}</span>
+        </div>
+        <div class="color-row">
+          <label class="color-label">Text</label>
+          <input type="color" class="color-picker" [value]="theme.textColor" (input)="updateThemeColor('textColor', $any($event.target).value)" />
+          <span class="color-hex">{{ theme.textColor }}</span>
+        </div>
+        <div class="color-row">
+          <label class="color-label">Border</label>
+          <input type="color" class="color-picker" [value]="theme.borderColor" (input)="updateThemeColor('borderColor', $any($event.target).value)" />
+          <span class="color-hex">{{ theme.borderColor }}</span>
+        </div>
+        <div class="color-row">
+          <label class="color-label">Input BG</label>
+          <input type="color" class="color-picker" [value]="theme.inputBg" (input)="updateThemeColor('inputBg', $any($event.target).value)" />
+          <span class="color-hex">{{ theme.inputBg }}</span>
+        </div>
+        <div class="color-row">
+          <label class="color-label">Label</label>
+          <input type="color" class="color-picker" [value]="theme.labelColor" (input)="updateThemeColor('labelColor', $any($event.target).value)" />
+          <span class="color-hex">{{ theme.labelColor }}</span>
+        </div>
+      </div>
+
+      <div class="theme-section">
+        <div class="theme-section-title">Typography</div>
+        <div class="theme-field">
+          <label>Font Family</label>
+          <select [ngModel]="theme.fontFamily" (ngModelChange)="updateThemeColor('fontFamily', $event)">
+            <option value="'Inter', sans-serif">Inter</option>
+            <option value="'Roboto', sans-serif">Roboto</option>
+            <option value="'Poppins', sans-serif">Poppins</option>
+            <option value="'Georgia', serif">Georgia</option>
+            <option value="'Courier New', monospace">Courier New</option>
+            <option value="system-ui, sans-serif">System UI</option>
+          </select>
+        </div>
+        <div class="theme-field">
+          <label>Font Size</label>
+          <select [ngModel]="theme.fontSize" (ngModelChange)="updateThemeColor('fontSize', $event)">
+            <option value="12px">12px — Small</option>
+            <option value="14px">14px — Default</option>
+            <option value="16px">16px — Medium</option>
+            <option value="18px">18px — Large</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="theme-section">
+        <div class="theme-section-title">Shape & Spacing</div>
+        <div class="theme-field">
+          <label>Border Radius</label>
+          <select [ngModel]="theme.borderRadius" (ngModelChange)="updateThemeColor('borderRadius', $event)">
+            <option value="0px">None — Square</option>
+            <option value="4px">4px — Subtle</option>
+            <option value="8px">8px — Default</option>
+            <option value="12px">12px — Rounded</option>
+            <option value="24px">24px — Pill</option>
+          </select>
+        </div>
+        <div class="theme-field">
+          <label>Field Spacing</label>
+          <select [ngModel]="theme.spacing" (ngModelChange)="updateThemeColor('spacing', $event)">
+            <option value="8px">Compact</option>
+            <option value="16px">Default</option>
+            <option value="24px">Comfortable</option>
+            <option value="32px">Spacious</option>
+          </select>
+        </div>
+        <div class="theme-field">
+          <label>Shadow</label>
+          <select [ngModel]="theme.shadowLevel" (ngModelChange)="updateThemeColor('shadowLevel', $event)">
+            <option value="none">None</option>
+            <option value="sm">Small</option>
+            <option value="md">Medium</option>
+            <option value="lg">Large</option>
+          </select>
+        </div>
+      </div>
     </div>
   </div>
 </aside>

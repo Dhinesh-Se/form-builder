@@ -1,45 +1,65 @@
-:host {
-  display: block;
-}
-
-.app-layout {
+.app-root {
   display: flex;
   height: 100vh;
-  background: #eef4ff;
-  color: #0f172a;
-  font-family: Inter, "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  overflow: hidden;
+  background: #f1f5f9;
 }
 
 .main-area {
-  display: flex;
   flex: 1;
-  min-width: 0;
+  display: flex;
   flex-direction: column;
   overflow: hidden;
+  min-width: 0;
 }
 
 .top-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.24);
-  background: rgba(255, 255, 255, 0.86);
-  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
-  padding: 18px 24px;
+  padding: 0 24px;
+  height: 56px;
+  background: #1a1f2e;
+  border-bottom: 1px solid #2d3748;
+  flex-shrink: 0;
 }
 
-.app-kicker {
-  color: #2563eb;
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+.top-bar-left { display: flex; align-items: center; gap: 12px; }
+
+.breadcrumb-sep {
+  font-size: 14px;
+  font-weight: 600;
+  color: #94a3b8;
+  letter-spacing: 0.2px;
 }
 
-.app-title {
-  margin: 4px 0 0;
-  color: #0f172a;
-  font-size: 26px;
-  line-height: 1;
+.top-bar-right { display: flex; align-items: center; gap: 10px; }
+
+.preview-btn-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1px solid #334155;
+  color: #94a3b8;
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+
+.preview-btn-top:hover {
+  background: #252d3f;
+  border-color: #4f46e5;
+  color: #a5b4fc;
+}
+
+.canvas-container {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }

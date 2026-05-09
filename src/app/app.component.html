@@ -1,13 +1,28 @@
-<div class="app-layout" cdkDropListGroup>
+<div class="app-root" cdkDropListGroup>
   <app-sidebar></app-sidebar>
+
   <div class="main-area">
+    <!-- TOP BAR -->
     <header class="top-bar">
-      <div>
-        <span class="app-kicker">No-code Angular generator</span>
-        <h1 class="app-title">Form Builder</h1>
+      <div class="top-bar-left">
+        <div class="top-bar-title">
+          <span class="breadcrumb-sep">Form Builder</span>
+        </div>
       </div>
-      <app-code-modal></app-code-modal>
+      <div class="top-bar-right">
+        <button class="preview-btn-top" type="button" (click)="formService.previewMode.set(true)">
+          <span>👁</span> Preview
+        </button>
+        <app-code-modal></app-code-modal>
+      </div>
     </header>
-    <app-canvas></app-canvas>
+
+    <!-- CANVAS -->
+    <div class="canvas-container">
+      <app-canvas></app-canvas>
+    </div>
   </div>
+
+  <!-- PREVIEW OVERLAY -->
+  <app-preview *ngIf="formService.previewMode()"></app-preview>
 </div>
